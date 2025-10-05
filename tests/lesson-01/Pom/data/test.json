@@ -1,0 +1,8 @@
+{
+    "dev": {        
+        "expectedTitle": "E-commerce site for automation testing – E-commerce site for automation testing"
+        },
+    "prod": {
+            "expectedTitle": "E-commerce site for automation testing – Automation test site"
+        }
+}

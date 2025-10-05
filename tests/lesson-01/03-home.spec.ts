@@ -1,34 +1,36 @@
 import { test, expect } from "@playwright/test";
-import dotenv from "dotenv";
-import path from 'path';
-import fs from "fs";
+import testData from './Pom/data/test.json';
+import { HomePage } from "./Pom/pages/home-page";
+
 
 
 test.describe("HOME_001", () => {
     const expectedTitle = {
-        dev: "E-commerce site for automation testing – E-commerce site for automation testing",
-        prod: "E-commerce site for automation testing – Automation test site"
-    }
+        dev: testData.dev.expectedTitle,
+        prod: testData.prod.expectedTitle
+    };
 
-    test("HOME-Kiểm tra home page hiển thị", { tag: ["@UI"] }, async ({ page }) => {
+    test("HOME-Kiểm tra home page hiển thị", {
+        annotation: {
+            type: "HOME_001",
+            description: "HOME",
+        },
+        tag: ["@HOME_OO1", "@HOME", "@UI"]
+    }, async ({ page }) => {
 
-        async function verifyTitleByEnv(env: string) {
-            delete process.env.BASE_URL;
-            dotenv.config({ path: path.resolve(__dirname, `../../.env.${env}`) });
-            const baseUrl = process.env.BASE_URL;   
-            await page.goto(baseUrl!);
-
-            const actualTitle = await page.title();
-            expect(actualTitle).toBe(expectedTitle[`${env}`]);
-        }
+        const homePage = new HomePage(page);
 
         await test.step("1.Kiểm tra title trang web cho dev", async () => {
-            await verifyTitleByEnv("dev");
+            await homePage.navigateHomePageByEnv("dev");
+            const actualTitle = await homePage.getTitle();
+            expect(actualTitle).toBe(expectedTitle.dev);
         }
         );
 
         await test.step("1.Kiểm tra title trang web cho production", async () => {
-            await verifyTitleByEnv("prod");
+            await homePage.navigateHomePageByEnv("prod");
+            const actualTitle = await homePage.getTitle();
+            expect(actualTitle).toBe(expectedTitle.prod);
         }
         );
     });

@@ -1,68 +1,74 @@
 import { test, expect } from "@playwright/test";
-import dotenv from "dotenv";
-import path from 'path';
+import { DashboardPage } from "./Pom/pages/dashboard-page";
+import { loadEnvInfo } from "./Pom/utils/util";
 
 
 test.describe("DB_AUTH", () => {
 
-    const xpathUsername = "//input[@id='user_login']";
-    const xpathPassword = "//input[@id='user_pass']";
-    const btnLogin = "//input[@id='wp-submit']";
+    test("Login thành công", {
+        annotation: {
+            type: "DB_AUTH_001",
+            description: "DASHBOARD - AUTH",
+        },
+        tag: ["@DB_AUTH", "@DASHBOARD - AUTH", "@UI", "@SMOKE"]
+    },
+        async ({ page }) => {
 
-    test("Login thành công", { tag: ["@UI", "@SMOKE"] }, async ({ page }) => {
-        async function verifyValidLogin(env: string) {
-            delete process.env.BASE_URL_ADMIN;
-            delete process.env.USERNAME;
-            delete process.env.PASSWORD;
-            dotenv.config({ path: path.resolve(__dirname, `../../.env.${env}`) });
-            const baseUrl = process.env.BASE_URL_ADMIN;
-            console.log("Base URL: ", baseUrl);
-            await page.goto(baseUrl!);
-            await page.locator(xpathUsername).fill(process.env.USERNAME!);
-            await page.locator(xpathPassword).fill(process.env.PASSWORD!);
-            await page.locator(btnLogin).click();
-            await expect(page.locator('#menu-dashboard')
-                .getByRole('link', { name: 'Dashboard' }))
-                .toBeVisible();
-        }
+            const dashboardPage = new DashboardPage(page);
 
-        await test.step("1.Kiểm tra login thành công cho dev", async () => {
-            await verifyValidLogin("dev");
-        }
-        );
+            await test.step("1.Kiểm tra login thành công cho dev", async () => {
+                await dashboardPage.navigateDashboardPageByEnv("dev");
+                await dashboardPage.fillLoginValidCredentials("dev")
+                await dashboardPage.clickLoginButton();
+                const actualDashboardPage = await dashboardPage.getDashBoardPage();
+                await expect(actualDashboardPage).toBeVisible();
+            }
+            );
 
-        await test.step("1.Kiểm tra login thành công  cho production", async () => {
-            await verifyValidLogin("prod");
-        }
-        );
-    });
+            await test.step("1.Kiểm tra login thành công  cho production", async () => {
+                await dashboardPage.navigateDashboardPageByEnv("prod");
+                await dashboardPage.fillLoginValidCredentials("prod")
+                await dashboardPage.clickLoginButton();
+                const actualDashboardPage = await dashboardPage.getDashBoardPage();
+                await expect(actualDashboardPage).toBeVisible();
+            }
+            );
+        });
 
-    test("Login thất bại", { tag: ["@UI"] }, async ({ page }) => {
-        async function verifyInValidLogin(env: string) {
-            delete process.env.BASE_URL_ADMIN;
-            delete process.env.USERNAME;
-            delete process.env.INVALID_PASSWORD;
-            dotenv.config({ path: path.resolve(__dirname, `../../.env.${env}`) });
-            const baseUrl = process.env.BASE_URL_ADMIN;
-            console.log("Base URL: ", baseUrl);
-            await page.goto(baseUrl!);
-            await page.locator(xpathUsername).fill(process.env.INVALID_USERNAME!);
-            await page.locator(xpathPassword).fill(process.env.PASSWORD!);
-            await page.locator(btnLogin).click();
-            await expect(page.locator('#login_error')).
-                toContainText(`Error: The username ${process.env.INVALID_USERNAME} is not registered on this site. If you are unsure of your username, try your email address instead.`);
+    test("Login thất bại", {
+        annotation: {
+            type: "DB_AUTH_002",
+            description: "DASHBOARD - AUTH"
+        },
+        tag: ["@DB_AUTH", "@DASHBOARD - AUTH", "@UI", "@SMOKE"]
+    },
+        async ({ page }) => {
 
-        }
+            const dashboardPage = new DashboardPage(page);
 
-        await test.step("1.Kiểm tra login không thành công cho dev", async () => {
-            await verifyInValidLogin("dev");
-        }
-        );
+            await test.step("1.Kiểm tra login không thành công cho dev", async () => {
+                await dashboardPage.navigateDashboardPageByEnv("dev");
+                await dashboardPage.fillLoginInvalidCredentials("dev")
+                await dashboardPage.clickLoginButton();
+                const actualErrMsg = await dashboardPage.getErrorMessage();
+                const invalidUsername = loadEnvInfo("dev").invalidUsername
 
-        await test.step("1.Kiểm tra login không thành công  cho production", async () => {
-            await verifyInValidLogin("prod");
-        }
-        );
-    });
+                await expect(actualErrMsg).
+                    toContainText(`Error: The username ${invalidUsername} is not registered on this site. If you are unsure of your username, try your email address instead.`);
+            }
+            );
+
+            await test.step("1.Kiểm tra login không thành công  cho production", async () => {
+                await dashboardPage.navigateDashboardPageByEnv("prod");
+                await dashboardPage.fillLoginInvalidCredentials("prod")
+                await dashboardPage.clickLoginButton();
+                const actualErrMsg = await dashboardPage.getErrorMessage();
+                const invalidUsername = loadEnvInfo("prod").invalidUsername;
+
+                await expect(actualErrMsg).
+                    toContainText(`Error: The username ${invalidUsername} is not registered on this site. If you are unsure of your username, try your email address instead.`);
+            }
+            );
+        });
 
 });
