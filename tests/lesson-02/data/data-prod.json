@@ -1,0 +1,20 @@
+{
+    "new_product_page":{
+        "data":{
+            "name_product": "Khoá học Performance testing với K6",
+            "regular_price": "120",
+            "sale_price": "70"
+        },
+        "expected":{
+            "notification":"Product published",
+            "url":"/admin/products/new"
+        }
+    },
+    "login_page":{
+        "data":{
+            "username":"Login - My Store",
+            "password":"/admin/login"
+        },
+        "expected":{}
+    }
+}
