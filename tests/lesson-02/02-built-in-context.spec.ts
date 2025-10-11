@@ -14,7 +14,7 @@ const username = loadEnvInfo(env).validUsername || '';
 const password = loadEnvInfo(env).password || '';
 
 
-test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page }) => {
+test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page, context}) => {
     process.env.ENV = 'dev';
     const env = process.env.ENV || 'dev';
     const data = env === 'dev' ? dataDev : dataProd;
@@ -48,6 +48,8 @@ test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page }) => {
     });
 
     await test.step('Verify new product added', async () => {
+        const verifyPage = await context.newPage();
+        const verifyProductPage = new NewProductPage(verifyPage);
         await newProductPage.navigateAllProductList();
         await page.waitForLoadState();
         const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
@@ -63,7 +65,7 @@ test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page }) => {
     });
 });
 
-test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page }) => {
+test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page, context }) => {
 
     process.env.ENV = 'prod';
     const env = process.env.ENV || 'prod';
@@ -97,7 +99,9 @@ test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page }) => {
         await expect(publishedMessageLocator).toBeVisible();
     });
 
-    await test.step('Verify new product added', async () => {
+    await test.step('Verify new product added', async () => {        
+        const verifyPage = await context.newPage();
+        const verifyProductPage = new NewProductPage(verifyPage);           
         await newProductPage.navigateAllProductList();
         await page.waitForLoadState();
         const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
