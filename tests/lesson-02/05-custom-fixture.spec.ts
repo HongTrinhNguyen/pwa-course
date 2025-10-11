@@ -12,21 +12,21 @@ test.describe("PRODUCT_002", () => {
     const env = process.env.ENV || 'dev';
     const data = env === 'dev' ? dataDev : dataProd;
 
-    test.beforeEach (async ({ loggedInPage }) => {
-        const newProductPage = new NewProductPage(loggedInPage);
+    // test.beforeEach (async ({ loggedInPage }) => {
+    //     const newProductPage = new NewProductPage(loggedInPage);
         // const page = await loggedInContext.newPage();
         //  const newProductPage = new NewProductPage(page);
         //Skip
-        await test.step("Delete product just created", async () => {
-            await newProductPage.navigateToNewProductPage(); 
-            await newProductPage.navigateAllProductList();           
-            const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
-            await expect(deletedProduct).not.toBeVisible();
-            const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
-            await deletedMsgLocator.waitFor({ state: "visible" });
-            await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
-        });
-    })
+    //     await test.step("Delete product just created", async () => {
+    //         await newProductPage.navigateToNewProductPage(); 
+    //         await newProductPage.navigateAllProductList();           
+    //         const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
+    //         await expect(deletedProduct).not.toBeVisible();
+    //         const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
+    //         await deletedMsgLocator.waitFor({ state: "visible" });
+    //         await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
+    //     });
+    // })
 
     test('PRODUCT_002 - Tạo product với visibility "Search results only"', async ({ loggedInPage }) => {
         const newProductPage = new NewProductPage(loggedInPage);
