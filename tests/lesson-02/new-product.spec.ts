@@ -3,7 +3,6 @@ import dataDev from './data/data-dev.json';
 import dataProd from './data/data-prod.json';
 import { NewProductPage } from '../../page/product/new.product.page';
 import { LoginPage } from '../../page/product/login.page';
-import { loadEnvFile } from 'process';
 import { loadEnvInfo } from './util';
 
 let data: any;
@@ -17,7 +16,6 @@ require('dotenv').config();
 test.beforeEach(async ({ page }) => {
   const locatorDoashboardHeaiding = page.getByRole('heading', { name: 'Dashboard' });
   data = process.env.ENV === 'dev' ? dataDev : dataProd;
-  console.log("data: " + JSON.stringify(data));
   username = loadEnvInfo("dev").validUsername || "";
   password = loadEnvInfo("dev").password || "";
 

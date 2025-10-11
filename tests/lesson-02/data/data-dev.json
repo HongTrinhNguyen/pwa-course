@@ -8,7 +8,8 @@
         "expected":{
             "notification":"Product published",
             "url":"/admin/products/new",
-            "heading_add_new_product":"Add new product"
+            "heading_add_new_product":"Add new product",
+            "deleted_message":"1 product moved to the Trash"
         }
     },
     "login_page":{
