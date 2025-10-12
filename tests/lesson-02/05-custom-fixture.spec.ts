@@ -7,113 +7,99 @@ import dataProd from './data/data-prod.json';
 import { loadEnvInfo } from './util';
 import { test } from '../../src/fixture/login.fixture';
 
-test.describe("PRODUCT_002", () => {
+test.describe("PRODUCT_002- Tạo product thành công trên- Tạo product thành công trên", () => {
     process.env.ENV = 'dev';
     const env = process.env.ENV || 'dev';
     const data = env === 'dev' ? dataDev : dataProd;
 
-    // test.beforeEach (async ({ loggedInPage }) => {
-    //     const newProductPage = new NewProductPage(loggedInPage);
-        // const page = await loggedInContext.newPage();
-        //  const newProductPage = new NewProductPage(page);
-        //Skip
-    //     await test.step("Delete product just created", async () => {
-    //         await newProductPage.navigateToNewProductPage(); 
-    //         await newProductPage.navigateAllProductList();           
-    //         const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
-    //         await expect(deletedProduct).not.toBeVisible();
-    //         const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
-    //         await deletedMsgLocator.waitFor({ state: "visible" });
-    //         await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
-    //     });
-    // })
+    test('PRODUCT_002 - Tạo product với visibility "Search results only on dev"', {
+        annotation: {
+            type: "PRODUCT",
+            description: "Add new product on prod"
+        },
+        tag: ["@PRODUCT", "@UI"],
+    },
+        async ({ loggedInPage }) => {
+            const newProductPage = new NewProductPage(loggedInPage);
 
-    test('PRODUCT_002 - Tạo product với visibility "Search results only"', async ({ loggedInPage }) => {
-        const newProductPage = new NewProductPage(loggedInPage);
-    
-        await test.step('Navigate to Add Product page', async () => {
-            await newProductPage.navigateToNewProductPage();
-            const locatorProductHeading = await newProductPage.getLocatorAddNewProductHeading();
-            await expect(locatorProductHeading).toHaveText(data.new_product_page.expected.heading_add_new_product);
+            await test.step('Navigate to Add Product page', async () => {
+                await newProductPage.navigateToNewProductPage();
+                const locatorProductHeading = await newProductPage.getLocatorAddNewProductHeading();
+                await expect(locatorProductHeading).toHaveText(data.new_product_page.expected.heading_add_new_product);
+            });
+            await test.step('Create a new product', async () => {
+                await newProductPage.addNewOnlySearchProduct(
+                    data.new_product_page.data.name_product,
+                    data.new_product_page.data.regular_price,
+                    data.new_product_page.data.sale_price);
+
+                const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
+                await publishedMessageLocator.waitFor();
+                await expect(publishedMessageLocator).toBeVisible();
+            });
+
+            await test.step('Verify new product added on All product list', async () => {
+                await newProductPage.navigateAllProductList();
+                const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
+                await expect(locatorNewProduct).toBeVisible();
+            })
+
+            await test.step('Verify that the newly added product is not showing on the View Product page', async () => {
+                await newProductPage.nagigateViewProductPage();
+                const locatorShopHeading = await newProductPage.getLocatorShopHeading();
+                await expect(locatorShopHeading).toBeVisible();
+                const locatorOnlySearchProduct = await newProductPage.getLocatorProductOnlyResearchOnViewProductPage(data.new_product_page.data.name_product);
+                await expect(locatorOnlySearchProduct).toHaveCount(0);
+
+            })
         });
-        await test.step('Create a new product', async () => {
-            await newProductPage.addNewProduct(
-                data.new_product_page.data.name_product,
-                data.new_product_page.data.regular_price,
-                data.new_product_page.data.sale_price);
-    
-            const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
-            await publishedMessageLocator.waitFor();
-            await expect(publishedMessageLocator).toBeVisible();
-        });
-    
-        await test.step('Verify new product added', async () => {
-            await newProductPage.navigateAllProductList();
-            const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
-            await expect(locatorNewProduct).toBeVisible();
-        })
-    
-        await test.step("Delete product just created", async () => {
-            const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
-            await expect(deletedProduct).not.toBeVisible();
-            const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
-            await deletedMsgLocator.waitFor({ state: "visible" });
-            await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
-        });
-    });
 })
 
-
-
-test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page }) => {
-
+test.describe("PRODUCT_002 - Tạo product thành công trên prod", () => {
     process.env.ENV = 'prod';
     const env = process.env.ENV || 'prod';
-    const data = env === 'dev' ? dataDev : dataProd;
-    const username = loadEnvInfo(env).validUsername || '';
-    const password = loadEnvInfo(env).password || '';
+    const data = env === 'prod' ? dataDev : dataProd;
 
-    const loginPage = new LoginPage(page);
-    const dashboardPage = new DashboardPage(page);
-    const newProductPage = new NewProductPage(page);
+    test('PRODUCT_002 - Tạo product với visibility "Search results only on prod"', {
+        annotation: {
+            type: "PRODUCT",
+            description: "Add new product on prod"
+        },
+        tag: ["@PRODUCT", "@UI"],
+    },
+        async ({ loggedInPage }) => {
+            const newProductPage = new NewProductPage(loggedInPage);
 
-    await test.step('Login successfully', async () => {
-        await loginPage.navigateToLoginPage(env);
-        await loginPage.login(username, password);
-        const dashboardHeading = await dashboardPage.getDashboardHeading();
-        await expect(dashboardHeading).toBeVisible();
-    });
+            await test.step('Navigate to Add Product page', async () => {
+                await newProductPage.navigateToNewProductPage();
+                const locatorProductHeading = await newProductPage.getLocatorAddNewProductHeading();
+                await expect(locatorProductHeading).toHaveText(data.new_product_page.expected.heading_add_new_product);
+            });
+            await test.step('Create a new product', async () => {
+                await newProductPage.addNewOnlySearchProduct(
+                    data.new_product_page.data.name_product,
+                    data.new_product_page.data.regular_price,
+                    data.new_product_page.data.sale_price);
 
-    await test.step('Navigate to Add Product page', async () => {
-        await newProductPage.navigateToNewProductPage();
-        const locatorProductHeading = await newProductPage.getLocatorAddNewProductHeading();
-        await expect(locatorProductHeading).toHaveText(data.new_product_page.expected.heading_add_new_product);
-    });
-    await test.step('Create a new product', async () => {
-        await newProductPage.addNewProduct(
-            data.new_product_page.data.name_product,
-            data.new_product_page.data.regular_price,
-            data.new_product_page.data.sale_price);
+                const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
+                await publishedMessageLocator.waitFor();
+                await expect(publishedMessageLocator).toBeVisible();
+            });
 
-        const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
-        await expect(publishedMessageLocator).toBeVisible();
-    });
+            await test.step('Verify new product added on All product list', async () => {
+                await newProductPage.navigateAllProductList();
+                const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
+                await expect(locatorNewProduct).toBeVisible();
+            })
 
-    await test.step('Verify new product added', async () => {
-        await newProductPage.navigateAllProductList();
-        await page.waitForLoadState();
-        const locatorNewProduct = await newProductPage.getLocatorProdcutAdded(data.new_product_page.data.name_product)
-        await expect(locatorNewProduct).toBeVisible();
-    })
-
-    await test.step("Delete product just created", async () => {
-        const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
-        await expect(deletedProduct).not.toBeVisible();
-        const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
-        await deletedMsgLocator.waitFor({ state: "visible" });
-        await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
-    });
-});
-
+            await test.step('Verify that the newly added product is not showing on the View Product page', async () => {
+                await newProductPage.nagigateViewProductPage();
+                const locatorShopHeading = await newProductPage.getLocatorShopHeading();
+                await expect(locatorShopHeading).toBeVisible();
+                const locatorOnlySearchProduct = await newProductPage.getLocatorProductOnlyResearchOnViewProductPage(data.new_product_page.data.name_product);
+                await expect(locatorOnlySearchProduct).toHaveCount(0);
+            })
+        });
+})
 
 

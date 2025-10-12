@@ -13,8 +13,17 @@ const data = env === 'dev' ? dataDev : dataProd;
 const username = loadEnvInfo(env).validUsername || '';
 const password = loadEnvInfo(env).password || '';
 
+test.describe("", async ()=> {
 
-test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page, browser }) => {
+})
+test('PRODUCT_001 - Tạo product thành công tren dev',{
+    annotation:{
+        type: "PRODUCT",
+        description: "Add new product on prod"
+    },
+    tag: ["@PRODUCT"],
+    }, 
+    async ({ page, browser }) => {
     process.env.ENV = 'dev';
     const env = process.env.ENV || 'dev';
     const data = env === 'dev' ? dataDev : dataProd;
@@ -42,7 +51,6 @@ test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page, browser
             data.new_product_page.data.name_product,
             data.new_product_page.data.regular_price,
             data.new_product_page.data.sale_price);
-
         const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
         await expect(publishedMessageLocator).toBeVisible();
     });
@@ -66,8 +74,17 @@ test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page, browser
     });
 });
 
-test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page, browser }) => {
+test.describe("", async ()=> {
 
+})
+test('PRODUCT_001 - Tạo product thành công tren prod',{
+    annotation:{
+        type: "PRODUCT",
+        description: "Add new product on prod"
+    },
+    tag: ["@PRODUCT"],
+    }, 
+    async ({ page, browser }) => {
     process.env.ENV = 'prod';
     const env = process.env.ENV || 'prod';
     const data = env === 'dev' ? dataDev : dataProd;
@@ -95,7 +112,6 @@ test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page, browse
             data.new_product_page.data.name_product,
             data.new_product_page.data.regular_price,
             data.new_product_page.data.sale_price);
-
         const publishedMessageLocator = await newProductPage.getLocatorProductPublishedMessage();
         await expect(publishedMessageLocator).toBeVisible();
     });

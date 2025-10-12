@@ -16,6 +16,9 @@ export class NewProductPage extends BasePage {
     xpathAddProductHeading = '//h1[@class="wp-heading-inline"]';
     xpathProductAdded = '//a[@class="row-title" and contains(text(), "[HongTrinh]")]';
     xpathDeleteMsg = '//div[@class="notice is-dismissible updated"]';
+    xpathOnlySearchResult = '//input[@id="_visibility_search"]';
+    xpathViewProductBtn = '//li[@id="wp-admin-bar-archive"]';
+    
 
     constructor(page: Page) {
         super(page);
@@ -53,6 +56,15 @@ export class NewProductPage extends BasePage {
         await this.clickPublishButton();
     }
 
+    async addNewOnlySearchProduct(productName: string, regularPrice: string, salePrice: string){
+        await this.page.locator(this.xpathProductName).fill(productName);
+        await this.page.locator(this.xpathRegularPrice).fill(regularPrice);
+        await this.page.locator(this.xpathSalePrice).fill(salePrice);
+        await this.clickEditCalalogVisibily();
+        await this.page.locator(this.xpathOnlySearchResult).check();
+        await this.clickPublishButton();
+    }
+
     async getLocatorAllProductMenu() {
         return this.page.getByRole('link', { name: 'All Products' })
     }
@@ -60,15 +72,31 @@ export class NewProductPage extends BasePage {
     async navigateAllProductList() {
         const locatorProductMenu = await this.getLocatorProductMenu();
         await locatorProductMenu.click();
-        const locatorAllProductMenu = await this.getLocatorAllProductMenu();
-       
+        const locatorAllProductMenu = await this.getLocatorAllProductMenu();       
         await locatorAllProductMenu.click();
-        // await this.page.waitForLoadState();
+
     }
     async getLocatorProdcutAdded(name_product: string){
         const locatorNewProductAdded =  this.page.getByRole('cell', { name: `${name_product}` });
         return locatorNewProductAdded;
     }
+
+    async nagigateViewProductPage(){
+        await this.page.locator(this.xpathAddNewProductBtn).click();
+
+    }
+    async getLocatorShopHeading(){
+      return  this.page.getByRole('heading', { name: 'Shop' });
+    }
+    async clickEditCalalogVisibily(){
+        await this.page.getByRole('link', { name: 'Edit', exact: true }).click();
+    }
+
+    async getLocatorProductOnlyResearchOnViewProductPage(name_product: string){
+        return this.page.getByRole('listitem').filter({ hasText: `Sale! ${name_product}` });
+    }
+
+
 
     async deleteProductAdded(name_product: string, env: string) {
         const locatorNewProductAdded =  await this.getLocatorProdcutAdded(name_product);
