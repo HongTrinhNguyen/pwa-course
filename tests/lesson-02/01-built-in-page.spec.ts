@@ -54,13 +54,13 @@ test('PRODUCT_001 - Tạo product thành công tren dev', async ({ page }) => {
         await expect(locatorNewProduct).toBeVisible();
     })
 
-    await test.step("Delete product just created", async () => {
-        const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
-        await expect(deletedProduct).not.toBeVisible();
-        const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
-        await deletedMsgLocator.waitFor({ state: "visible" });
-        await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
-    });
+    // await test.step("Delete product just created", async () => {
+    //     const deletedProduct = await newProductPage.deleteProductAdded(data.new_product_page.data.name_product, env);
+    //     await expect(deletedProduct).not.toBeVisible();
+    //     const deletedMsgLocator = await newProductPage.getLocatorDeleteNoti();
+    //     await deletedMsgLocator.waitFor({ state: "visible" });
+    //     await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
+    // });
 });
 
 test('PRODUCT_001 - Tạo product thành công tren prod', async ({ page }) => {

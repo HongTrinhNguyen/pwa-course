@@ -47,6 +47,7 @@ const test = base.extend<TestFixtures>({
             await expect(deletedMsgLocator).toContainText(data.new_product_page.expected.deleted_message);
 
             await use(page);
+            
             // await context.close();
         },
         { scope: "test" }
