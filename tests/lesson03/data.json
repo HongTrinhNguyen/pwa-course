@@ -1,0 +1,20 @@
+{
+    "PRODUCT_003": {
+        "dev": {
+            "product": {
+                "productName": "[HongTrinh] Khoá học API testing với K6",
+                "regularPrice": "100",
+                "salePrice": "80"
+            }
+            
+        },
+        "prod": {
+            "product": {
+                "productName": "[HongTrinh] Khoá học Performance testing với K6 ",
+                "regularPrice": "100",
+                "salePrice": "80"
+            }
+            
+        }
+}
+}
