@@ -1,0 +1,23 @@
+{
+    "new_product_page":{
+        "data":{
+            "name_product": "[HongTrinh]Khoá học API Testing với Postman",
+            "regular_price": "100",
+            "sale_price": "80"
+        },
+        "expected":{
+            "notification":"Product published",
+            "url":"/admin/products/new",
+            "heading_add_new_product":"Add new product",
+            "deleted_message":"1 product moved to the Trash"
+        }
+    },
+    "login_page":{
+        "data":{
+            "username":"pw101",
+            "password":"vB30(jIwq2Jn6GloUu&asCKP"
+        },
+        "expected":{
+        }
+    }
+}
