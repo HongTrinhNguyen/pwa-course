@@ -4,7 +4,7 @@ import { BasePage } from "../base.page";
 import dotenv from "dotenv";
 import path from 'path';
 import { time } from "console";
-
+import data from '../../tests/lesson03/data.json';
 
 export class NewProductPage extends BasePage {
 
@@ -32,18 +32,46 @@ export class NewProductPage extends BasePage {
         return this.page.getByRole('link', { name: 'Add new product' });
     }
 
+    async getLocatorReviewMn(){
+        return this.page.locator('#menu-posts-product').getByRole('link', { name: 'Reviews' })
+    }
+
     async navigateToNewProductPage() {
         const locatorProductMenu = await this.getLocatorProductMenu();
         await locatorProductMenu.click();
         await this.page.locator(this.xpathAddNewProductBtn).click();
 
     }
+
+    async backToProductList(){
+        await this.page.getByRole('menuitem', { name: 'E-commerce site for' }).click();        
+    }
+
+    async navigateReviewList(){
+        const locatorReviewMn = (await this.getLocatorReviewMn()).click();
+    }
+
     async getLocatorAddNewProductHeading() {
         return this.page.locator(this.xpathAddProductHeading);
     }
 
     async getLocatorProductPublishedMessage() {
         return this.page.getByText('Product published. View Product');
+    }
+
+    getLocatorReviewAdded(content: string, index: number){
+        return this.page.getByRole('cell', { name: `${content} – review ${index}` })
+    }
+
+    async getLocatorApproveLink(content: string, index: number){
+        return this.page.getByRole('cell', { name: `${content} – review ${index}`}).getByLabel('Approve this review', { exact: true })
+    }
+
+    async approveReview(content: string, index: number){
+        const locatorReview = this.getLocatorReviewAdded(content, index);
+        const locatorApproveLink = this.getLocatorApproveLink(content, index);
+        await locatorReview.click();
+        (await locatorApproveLink).click();
     }
 
     async clickPublishButton() {
@@ -82,12 +110,17 @@ export class NewProductPage extends BasePage {
     }
 
     async nagigateViewProductPage(){
-        await this.page.locator(this.xpathAddNewProductBtn).click();
+        await this.page.getByRole('menuitem', { name: 'View products' }).click();
 
     }
     async getLocatorShopHeading(){
       return  this.page.getByRole('heading', { name: 'Shop' });
     }
+
+    async getLocatorHomeProductDetail(){
+        return this.page.getByLabel('Breadcrumb').getByRole('link', { name: 'Home' });
+    }
+
     async clickEditCalalogVisibily(){
         await this.page.getByRole('link', { name: 'Edit', exact: true }).click();
     }
@@ -96,6 +129,24 @@ export class NewProductPage extends BasePage {
         return this.page.getByRole('listitem').filter({ hasText: `Sale! ${name_product}` });
     }
 
+    async getLocatorProductAdded (name_product: string){
+        return this.page.getByRole('link', { name: `${name_product}` });
+    }
+
+    async clickProductAdded(name_product: string){
+        const locatorProduct = await this.getLocatorProductAdded(name_product);
+        await locatorProduct.waitFor({state:'visible'});
+        await locatorProduct.click({position: { x: 23, y: 32 }});
+    }
+
+
+    async getLocatorNoReviewCount(){
+        return this.page.getByRole('tab', { name: 'Reviews (0)' });
+    }
+
+    async getReviewLocatorOnSF(contentReview: string){
+        return this.page.getByText(`${contentReview}`);
+    }
 
 
     async deleteProductAdded(name_product: string, env: string) {
@@ -113,7 +164,14 @@ export class NewProductPage extends BasePage {
 
     async getLocatorDeleteNoti() {
         return this.page.getByText('product moved to the Trash. Undo')
-
     }
 
+    async getProductInfo(idTestCase: string){
+        const env = process.env.EVN || 'dev';
+        return data[idTestCase][env].product;
+    }
+    async getReviewInfo(idTestCase: string){
+        const env = process.env.EVN || 'dev';
+        return data[idTestCase][env].review;
+    }
 }  
