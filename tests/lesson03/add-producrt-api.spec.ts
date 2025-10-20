@@ -1,8 +1,11 @@
 import { test, request, expect } from "@playwright/test";
 import { LoginPage } from '../../page/product/login.page';
-import data from './data.json';
-import { NewProductPage } from "../../page/product/new.product.page";
 import { loadEnvInfo } from "../lesson-02/util";
+import { ProductAdminPage } from "../../page/admin/product.admin.page";
+import { ReviewAdminPage } from "../../page/admin/review.admin.page";
+import { ProductStorePage } from "../../page/storefront/product.store.page";
+import { ReviewStorePage } from "../../page/storefront/review.store.page";
+import { DashboardPage } from "../../page/product/dashboard.page";
 
 let loginPage: LoginPage;
 let usernameValid: string, passwordValid: string;
@@ -16,30 +19,22 @@ test.describe("PRODUCT 003", {
     },
     tag: ["@UI", "@PRODUCT_REVIEW", "@CREATE"]
 }, () => {
-
-    process.env.ENV = 'prod';
-    const env = process.env.ENV || 'prod';
-    const { baseUrl, validUsername, password } = loadEnvInfo(env);
+    const env = process.env.ENV || 'dev';
+    const { baseUrl, validUsername, password, apiUrl, apiKey } = loadEnvInfo(env);
 
     let productId: number;
     let requestContext: any;
-    const apiUrl = 'https://e-commerce.betterbytesvn.com/wp-json/wc/v3/products/';
-    const apiKey = 'Y2tfNWE0Yjg2NTg5YmQwZWJhNWI0NzEwNDVjZTNhZWY0ZDg2YjQ2NWZkYzpjc19kN2MwYTA0NDljMDhhYmRlZmVhODA1OTc1ZmU1M2I5NDZjM2IyYjA4';
 
     test.beforeEach(async ({ page }) => {
-        const newProductPage = new NewProductPage(page);
-        const product = await newProductPage.getProductInfo("PRODUCT_003")
-        console.log(product);
-        console.log('product name log:', product.productName);
-        console.log('product regular price:', product.regularPrice);
-        console.log('product sale price:', product.salePrice);
+        const productAdminPage = new ProductAdminPage(page);
+        const productStorePage = new ProductStorePage(page);
+        const product = await productAdminPage.getProductInfo("PRODUCT_003")
 
         await test.step("Create new product", async ({ }) => {
             requestContext = await request.newContext({
                 baseURL: apiUrl,
                 extraHTTPHeaders: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Basic ${process.env.TOKEN}`
                     'Authorization': `Basic ${apiKey}`
                 },
             });
@@ -54,27 +49,30 @@ test.describe("PRODUCT 003", {
             expect(response.status()).toBe(201);
             const body = await response.json();
             productId = body.id;
-            console.log('Product created:', productId);
         });
 
         await test.step('Login success', async () => {
             loginPage = new LoginPage(page);
-            loginPage.navigateToLoginPage("prod");
-            await loginPage.login("prod");
-            await newProductPage.navigateAllProductList();
-            await newProductPage.nagigateViewProductPage();
-            const locatorShopHeading = await newProductPage.getLocatorShopHeading();
-            await expect(locatorShopHeading).toBeVisible();
+            loginPage.navigateToLoginPage(process.env.ENV);
+            await loginPage.login(process.env.ENV);
+            await productAdminPage.navigateAllProductList();
+            await productAdminPage.nagigateViewProductPage();
+            const shopHeading = await productStorePage.shopHeading();
+            await expect(shopHeading).toBeVisible();
         })
     });
 
     test("PRODUCT-003", async ({ page }) => {
-        const arrProduct = [];
-        const newProductPage = new NewProductPage(page);
-        const review = await newProductPage.getReviewInfo("PRODUCT_003");
-        for (let i = 1; i <= 5; i++) {
-            await test.step("Add hold review for product added", async () => {            
-                            
+        const dashBoardPage = new DashboardPage(page);
+        const productAdminPage = new ProductAdminPage(page);
+        const reviewAdminPage = new ReviewAdminPage(page);
+        const productStorePage = new ProductStorePage(page);
+        const reviewStorePage = new ReviewStorePage(page);
+
+        const review = await reviewAdminPage.getReviewInfo("PRODUCT_003");
+        
+        for (let i = 1; i <= 2; i++) {
+            await test.step("Add hold review for product added", async () => {
                 requestContext = await request.newContext({
                     baseURL: apiUrl,
                     extraHTTPHeaders: {
@@ -83,14 +81,10 @@ test.describe("PRODUCT 003", {
                         'Authorization': `Basic ${apiKey}`
                     },
                 });
-                console.log("Review content ",`${review.content} - review ${[i]}` );
-                console.log("Reviewer ",review.reviewer );
-                console.log("Review email ",review.reviewerEmail );
-                console.log("Review status ",review.status);
 
                 const response = await requestContext.post(apiUrl + 'reviews', {
                     data: {
-                        "product_id": 854,
+                        "product_id": productId,
                         "review": `${review.content} - review ${[i]}`,
                         "reviewer": review.reviewer,
                         "reviewer_email": review.reviewerEmail,
@@ -99,40 +93,48 @@ test.describe("PRODUCT 003", {
                     },
                 });
                 expect(response.status()).toBe(201);
-                const body = await response.json();                    
+                const body = await response.json();
             });
 
-            await test.step("Verify review not visible on SF", async() => {
-                const product = await newProductPage.getProductInfo("PRODUCT_003")
-                // await newProductPage.nagigateViewProductPage();
-                const locatorShopHeading = await newProductPage.getLocatorShopHeading();
-                await expect(locatorShopHeading).toBeVisible();
+            await test.step("Verify review not visible", async () => {
 
-                await newProductPage.clickProductAdded(product.productName);
-                
-                const locatorHome = await newProductPage.getLocatorHomeProductDetail();
-                await expect(locatorHome).toBeVisible();
+                const product = await productAdminPage.getProductInfo("PRODUCT_003")
+                await productStorePage.clickNewProduct(product.productName);
 
-                const locatorNoReviewAmount = await newProductPage.getLocatorNoReviewCount();
-                await expect(locatorNoReviewAmount).toBeVisible();
+                const homeBreadCrumb = await productStorePage.homeBreadCrumb();
+                await expect(homeBreadCrumb).toBeVisible();
+
+                const reviewUnapprove = await reviewStorePage.newReview(review.content, i);
+                await expect(reviewUnapprove).toBeHidden();
             });
 
             await test.step("Approve review", async () => {
-                await newProductPage.backToProductList();
-                await newProductPage.navigateReviewList();
-                await newProductPage.approveReview(review.content,i);
+                await productAdminPage.switchBetweenAdminAndStorefront();
+                const dashboardHeading = await dashBoardPage.dashboardHeading();
+                await expect(dashboardHeading).toBeVisible();
+                await productAdminPage.selectProductMn();
+                await reviewAdminPage.navigateReviewList();
+                await reviewAdminPage.approveReview(review.content, i);
             });
 
-            await test.step("Verify review visible on SF", async() => {
-                const locatorReviewOnSF = await newProductPage.getReviewLocatorOnSF(review.content);
+            await test.step("Verify review visible on SF", async () => {
+                const product = await productAdminPage.getProductInfo("PRODUCT_003")
+                await productAdminPage.switchBetweenAdminAndStorefront();
+
+                const shopHeading = await productStorePage.shopHeading();
+                await expect(shopHeading).toBeVisible();
+                await productStorePage.clickNewProduct(product.productName);
+
+                const locatorReviewOnSF = await reviewStorePage.newReview(review.content, i);
                 await expect(locatorReviewOnSF).toBeVisible();
-            })
-        }        
-});
+                await productStorePage.backToHomePage();
+            });
+        };
+    });
 
-    // test.afterEach(async () => {
-    //     const response = await requestContext.delete(apiUrl + productId);
-    //     expect(response.status()).toBe(200);
-
-    // })
+    test.afterEach(async () => {
+        if(!requestContext || !productId) return;
+        const response = await requestContext.delete(apiUrl! + productId);
+        await expect(response.status()).toBe(200);
+    });
 });

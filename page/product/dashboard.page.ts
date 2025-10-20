@@ -8,7 +8,7 @@ export class DashboardPage extends BasePage {
         super(page);
     }
 
-    async getDashboardHeading() {
+    async dashboardHeading() {
         return this.page.locator(this.locatorDashboardHeading);
     }
 }

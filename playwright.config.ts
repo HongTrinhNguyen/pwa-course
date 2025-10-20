@@ -12,6 +12,8 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  globalSetup: require.resolve('./setup/global-setup'),
+  globalTeardown: require.resolve('./setup/global-teardown'),
   timeout: 120_000,
   testDir: './tests',
   /* Run tests in files in parallel */
@@ -37,7 +39,7 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     },
 
     {
@@ -49,6 +51,22 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+    {
+      name: 'chrome auto authenticate',
+      testIgnore: ['**/login*.spec.ts', '**/register*.spec.ts'],
+      use: {
+         ...devices['Desktop Chrome'] ,
+        storageState: '.playwright/auth.json',
+      }
+    },
+    {
+      name: 'firefox for login',
+      testMatch: ['**/login*.spec.ts', '**/register*.spec.ts'],
+      use: {
+         ...devices['Desktop Firefox'] ,
+      }
+    }
+
 
     /* Test against mobile viewports. */
     // {
@@ -66,7 +84,7 @@ export default defineConfig({
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
     // {
-    //   name: 'Google Chrome',
+    //   name: 'Chromium',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
