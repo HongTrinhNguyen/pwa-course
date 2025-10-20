@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { BasePage } from '../base.page';
 import { loadEnvInfo } from '../../tests/lesson-02/util';
+import { load } from 'dotenv';
 
 export class LoginPage extends BasePage {
     
@@ -17,9 +18,11 @@ export class LoginPage extends BasePage {
         console.log("baseUrl: " + baseUrl);
         await this.page.goto(baseUrl!);   }
 
-    async login(username: string, password: string){
-        await this.page.fill(this.locatorUsername, username);
-        await this.page.fill(this.locatorPassword, password);
+    async login(env: string){
+        const username = loadEnvInfo(env).validUsername;
+        const password = loadEnvInfo(env).password;
+        await this.page.fill(this.locatorUsername, username!);
+        await this.page.fill(this.locatorPassword, password!);
         await this.page.click(this.locatorLoginButton);
     }    
 

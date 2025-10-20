@@ -1,0 +1,32 @@
+{
+    "PRODUCT_003": {
+        "dev": {
+            "product": {
+                "productName": "[HongTrinh] Khoá học API testing với K6",
+                "regularPrice": "100",
+                "salePrice": "80"
+            },
+            "review": {
+                "content": "Add new review dev",
+                "reviewer": "HongTrinh",
+                "reviewerEmail": "trinh01@mail.com",
+                "status": "hold"
+            }
+
+            
+        },
+        "prod": {
+            "product": {
+                "productName": "[HongTrinh] Khoá học Performance testing với K6 ",
+                "regularPrice": "100",
+                "salePrice": "80"
+            },
+            "review": {
+                "content": "Add new review prod",
+                "reviewer": "HongTrinh",
+                "reviewerEmail": "80"
+            }
+            
+        }
+}
+}

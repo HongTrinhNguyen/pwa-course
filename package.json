@@ -6,7 +6,12 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HongTrinhNguyen/pwa-course.git"
+    "url": "git+https://github.com/HongTrinhNguyen/pwa-course.git",
+    "hongtrinh:run-smoke": "npx playwright test --grep @SMOKE",
+    "hongtrinh:run-chome": "npx playwright test --project=chorium",
+    "hongtrinh:run-chrome-headed": "npx playwright test --project=chorium --headed",
+    "hongtrinh:run-last-failed:": "npx playwright test --last-failed",
+    "hongtrinh:run-3times:": "npx playwright test --retries=2"
   },
   "keywords": [],
   "author": "",
